@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import GUI from "lil-gui";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
-import GUI from "lil-gui";
 
 /**
  * Base
@@ -21,34 +21,21 @@ const scene = new THREE.Scene();
  */
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("/draco/");
+
 const gltfLoader = new GLTFLoader();
 gltfLoader.setDRACOLoader(dracoLoader);
 
 let mixer = null;
 
-gltfLoader.load(
-  "/models/Fox/glTF/Fox.gltf",
-  (gltf) => {
-    const mixer = new THREE.AnimationMixer(gltf.scene);
-    const action = mixer.clipAction(gltf.animations[0]);
+gltfLoader.load("/models/Fox/glTF/Fox.gltf", (gltf) => {
+  gltf.scene.scale.set(0.025, 0.025, 0.025);
+  scene.add(gltf.scene);
 
-    action.play();
-
-    console.log(gltf);
-
-    gltf.scene.scale.set(0.025, 0.025, 0.025);
-
-    scene.add(gltf.scene);
-
-    console.log("Success");
-  },
-  () => {
-    console.log("Progress");
-  },
-  () => {
-    console.log("Error");
-  },
-);
+  // Animation
+  mixer = new THREE.AnimationMixer(gltf.scene);
+  const action = mixer.clipAction(gltf.animations[0]);
+  action.play();
+});
 
 /**
  * Floor
@@ -79,7 +66,7 @@ directionalLight.shadow.camera.left = -7;
 directionalLight.shadow.camera.top = 7;
 directionalLight.shadow.camera.right = 7;
 directionalLight.shadow.camera.bottom = -7;
-directionalLight.position.set(5, 5, 5);
+directionalLight.position.set(-5, 5, 0);
 scene.add(directionalLight);
 
 /**
@@ -144,7 +131,7 @@ const tick = () => {
   const deltaTime = elapsedTime - previousTime;
   previousTime = elapsedTime;
 
-  //Update Mixer
+  // Model animation
   if (mixer) {
     mixer.update(deltaTime);
   }
